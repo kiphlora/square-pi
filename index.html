@@ -22,12 +22,10 @@
 			</div>
 		</header>
 
+		
   	<div class="intro-content">
-			<div>
 				<h3>Why Approximate Pi?</h3>
 				<p>Pi is an important number in our world. It can be found all over the place, from the oscillations of a pendulum, to the area of a circle, to the cyclical motions of the tides. Since it is a transcendental number, meaning that it cannot be represented as a fraction, the best we can do is to derive increasingly better approximations of it. The following method is one of many ways by which we approximate pi.</p>
-			</div>
-			<div>
 				<h3>Overview</h3>
 				<p>In order to approximate pi, we will:</p>
 				<ol>
@@ -36,50 +34,29 @@
 					<li>Draw a circle so that it is inscribed within the unit square</li>
 					<li>Find the proportion of values that lie within the circle and multiply by 4 to get pi</li>
 				</ol>
+		</div>
+		
+		<div class="scroll-content">
+			<div class="chapter-container">
+				<div id="draw-unit-square" class="chapter">Draw unit square</div>
+				<div id="add-points" class="chapter">Add random points</div>
+				<div id="draw-inscribed-circle" class="chapter">Draw inscribed circle</div>
+				<div id="count-points-in-circle" class="chapter">Calculate proportion of points in circle</div>
 			</div>
+			<div id="scroll-vis"></div>
 		</div>
 
-		<div id="chapter-trigger"></div>
-		<div class="chapter-container">
-			<div id="draw-unit-square" class="chapter">Draw unit square</div>
-			<div id="add-points" class="chapter">Add random points</div>
-			<div id="draw-inscribed-circle" class="chapter">Draw inscribed circle</div>
-			<div id="count-points-in-circle" class="chapter">Calculate proportion of points in circle</div>
-		</div>
-
-		<div id="scroll-vis"></div>
-		<div id="marker"></div>
+		<div id="marker" class="marker"></div>
 
   </div>
 
+	<script src="js/chapters/init-full-algorithm.js"></script>
   <script src="js/chapters/draw-unit-square.js"></script>
   <script src="js/chapters/add-points.js"></script>
   <script src="js/chapters/draw-inscribed-circle.js"></script>
   <script src="js/chapters/count-points-in-circle.js"></script>
 
   <script>
-
-  	var n = 10000000;
-		var x = buildCustomArray(n, function(){ return randReal(0,1); });
-		var y = buildCustomArray(n, function(){ return randReal(0,1); });
-		var points = zip(x,y);
-
-		var circle = { point: [0.5, 0.5], r: 0.5 };
-
-		var inCircleIndicator = vecOp(points, function(d,i){
-			var distToCircleCenter = euclideanDist(d, circle.point);
-			if (distToCircleCenter <= circle.r) return 1;
-			else return 0;
-		});
-
-		var inCircleCount = sum(inCircleIndicator);
-		var inCircleProp = inCircleCount / n;
-
-		console.log(inCircleIndicator);
-		console.log(inCircleCount);
-		console.log(inCircleProp);
-
-		console.log("Pi is approximately: " + 4 * inCircleProp);
 
   	window.onload = function() {
   		// setup chapters
@@ -89,39 +66,27 @@
 	  	runChapter[2] = drawInscribedCircle;
 	  	runChapter[3] = countPointsInCircle;
 
-	  	var container = d3.select("#scroll-vis");
-			var containerBox = container.node().getBoundingClientRect();
-			var margin = { left: 0, right: 0, top: 0, bottom: 0 };
-			var width = containerBox.width - margin.left - margin.right;
-			var height = containerBox.height - margin.top - margin.bottom;
-
-			var svg = container.append("svg")
-					.attr("width", width + margin.left + margin.right)
-					.attr("height", height + margin.top + margin.bottom)
-					.style("border", "1px solid black")
-				.append("g")
-					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-			var svgBounds = { x1: 0, x2: width, y1: 0, y2: height };
-
-			container.style("opacity", 0);
-
 			// create a set of scrolling markers for debug purposes
 			var st = new ScrollTracker();
 
 			var chapters = d3.selectAll(".chapter");
 			var chapterInfo = buildCustomArray(chapters.size(), function(){ return { active: false }; });
 			var middleMarker = st.tracker;
-			d3.select("#marker").style("top", middleMarker + "px").text("Trigger | " + middleMarker + "px");
+			var marker = d3.select("#marker");
+			marker.style("top", middleMarker + "px").text("Trigger | " + middleMarker + "px");
 
 
 			d3.select(window).on("scroll", function(d,i){
 				middleMarker = st.tracker;
-				d3.select("#marker").style("top", middleMarker + "px").text("Trigger | " + middleMarker + "px");
+				marker.style("top", middleMarker + "px").text("Trigger | " + middleMarker + "px");
+
+
+				var allinfo = [];
 
 				// look through each chapter to see if the scroll tracker is within its bounds
 				chapters.each(function(d,i){
 					info = st.trackElement(this);
+					allinfo[i] = info;
 
 					if (info.state === "inside") {
 						if (!chapterInfo[i].active) {
@@ -133,6 +98,10 @@
 						chapterInfo[i].active = false;
 					}
 				});
+
+				if (sum(vecOp(allinfo, function(d,i){ return d.state == "before" ? 1 : 0; })) == allinfo.length) {
+					svg.selectAll("*").style("opacity", 0);
+				}
 			});
   	}
   	
