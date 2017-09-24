@@ -37,6 +37,11 @@
 					<li>Find the proportion of values that lie within the circle and multiply by 4 to get pi</li>
 				</ol>
 			</div>
+			<div>
+				<h3>It seems slow...</h3>
+				<p>It is slow. This method would exactly equal pi given an infinite amount of points, but it's approximations converges to pi too slowly to be of practical use.</p>
+				<p>As mentioned before, there are many other methods to use. If you're interested, check a few of them out: .......</p>
+			</div>
 		</div>
 
 		<div id="chapter-trigger"></div>
@@ -59,7 +64,7 @@
 
   <script>
   	var t0 = Date.now();
-  	var n = 10000;
+  	var n = 0;
   	var circle = { point: [0.5, 0.5], r: 0.5, r2: 0.5 * 0.5 };
   	var s = 0;
   	var prop = 0;
@@ -75,24 +80,34 @@
   		return indicator;
   	}
 
-  	var countPrint = 0;
+  	var pi = d3.select("body").append("p");
 
-  	for (var i=0; i<n; i++) {
-  		s += isRandomPointInCircle()
-  		prop = s / (i+1);
 
-  		if (countPrint == 0) {
-  			// console.log(4 * prop);	
-  			// d3.select("body").append("p").text(4 * prop);
-  		}
+  	var raf;
+  	window.addEventListener("mouseover", function(e){
+  		raf = queue();
+  	});
 
-  		countPrint++;
-  		if (countPrint >= 10000) countPrint = 0;
-  		
+  	window.addEventListener("mouseout", function(e){
+  		dequeue(raf);
+  	});
+
+  	function queue() {
+  		return window.requestAnimationFrame(update);
   	}
-  	var t1 = Date.now();
-  	console.log("it took " + (t1 - t0) + " seconds to run " + n + " points");
-		console.log("Pi is approximately: " + 4 * prop);
+
+  	function dequeue(animFrame) {
+  		window.cancelAnimationFrame(animFrame);
+  	}
+
+  	function update(t) {
+  		raf = window.requestAnimationFrame(update);
+  		for (var i=0; i<100000; i++) {
+  			s += isRandomPointInCircle();
+  			n++;	
+  		}
+  		pi.text("n: " + n + " | pi = " + (4 * s / n));
+  	}
 
   	window.onload = function() {
   		// setup chapters

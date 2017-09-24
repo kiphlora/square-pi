@@ -268,3 +268,31 @@ function randColor(a) {
 	if (a === undefined) return "rgb(" + c + ")";
 	else return "rgba(" + c + "," + a + ")";
 }
+
+
+
+
+/*
+Code for creating an overall loop using requestAnimationFrame
+var raf;
+window.addEventListener("mouseover", function(e){
+	raf = queue(update);
+});
+
+window.addEventListener("mouseout", function(e){
+	dequeue(raf);
+});
+
+function queue(func) {
+	return window.requestAnimationFrame(func);
+}
+
+function dequeue(animFrame) {
+	window.cancelAnimationFrame(animFrame);
+}
+
+function update(t) {
+	raf = window.requestAnimationFrame(update);
+	// other code to be updated each frame
+}
+*/
