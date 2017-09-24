@@ -115,6 +115,28 @@ function euclideanDist(a,b) {
 	return dist;
 }
 
+function squaredEuclideanDist(a,b){
+	if (a.length !== b.length) {
+		console.log("incompatible vectors - array lengths not equal");
+		return undefined;
+	}
+
+	// zip together a anb b
+	// example: a = [0,0,0], b = [3,4,0]  =>  z = [ [0,3], [0,4], [0,0] ]
+	var z = zip(a,b);
+
+	// since z is always an array of pairs (associated with each dimension), we can vectorize
+	// the squared-difference operation
+	// example: sq = [ (3-0)^2, (4-0)^2, (0-0)^2 ]  =>  sq = [9,16,0]
+	var sq = vecOp(z, function(d,i){ return ( (d[1] - d[0]) * (d[1] - d[0]) ); });
+
+	// add the squared differences together
+	// examples: s = 9 + 16 + 0 = 25
+	var s = sum(sq);
+
+	return s;
+}
+
 
 // returns form: [index in array of max value, max value]
 function max(arr) {

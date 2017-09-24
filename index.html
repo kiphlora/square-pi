@@ -58,28 +58,41 @@
   <script src="js/chapters/count-points-in-circle.js"></script>
 
   <script>
+  	var t0 = Date.now();
+  	var n = 10000;
+  	var circle = { point: [0.5, 0.5], r: 0.5, r2: 0.5 * 0.5 };
+  	var s = 0;
+  	var prop = 0;
 
-  	var n = 10000000;
-		var x = buildCustomArray(n, function(){ return randReal(0,1); });
-		var y = buildCustomArray(n, function(){ return randReal(0,1); });
-		var points = zip(x,y);
+  	function isRandomPointInCircle() {
+  		var x = randReal(0,1);
+  		var y = randReal(0,1);
+  		var point = [x,y];
 
-		var circle = { point: [0.5, 0.5], r: 0.5 };
+  		var sqdist = squaredEuclideanDist(point, circle.point);
+  		var indicator = (sqdist <= circle.r2) ? 1 : 0;
 
-		var inCircleIndicator = vecOp(points, function(d,i){
-			var distToCircleCenter = euclideanDist(d, circle.point);
-			if (distToCircleCenter <= circle.r) return 1;
-			else return 0;
-		});
+  		return indicator;
+  	}
 
-		var inCircleCount = sum(inCircleIndicator);
-		var inCircleProp = inCircleCount / n;
+  	var countPrint = 0;
 
-		console.log(inCircleIndicator);
-		console.log(inCircleCount);
-		console.log(inCircleProp);
+  	for (var i=0; i<n; i++) {
+  		s += isRandomPointInCircle()
+  		prop = s / (i+1);
 
-		console.log("Pi is approximately: " + 4 * inCircleProp);
+  		if (countPrint == 0) {
+  			// console.log(4 * prop);	
+  			// d3.select("body").append("p").text(4 * prop);
+  		}
+
+  		countPrint++;
+  		if (countPrint >= 10000) countPrint = 0;
+  		
+  	}
+  	var t1 = Date.now();
+  	console.log("it took " + (t1 - t0) + " seconds to run " + n + " points");
+		console.log("Pi is approximately: " + 4 * prop);
 
   	window.onload = function() {
   		// setup chapters
