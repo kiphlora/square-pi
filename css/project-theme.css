@@ -16,10 +16,14 @@ body {
 
 
 .hero-header {
-	-webkit-clip-path: polygon(0 0, 100% 0, 100% 45%, 0 100%);
-  clip-path:         polygon(0 0, 100% 0, 100% 45%, 0 100%);
+	/*-webkit-clip-path: polygon(0 0, 100% 0, 100% 45%, 0 100%);*/
+  /*clip-path:         polygon(0 0, 100% 0, 100% 45%, 0 100%);*/
 
-  background-color: #ff6600;
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 65%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 65%, 0 100%);
+
+	background: linear-gradient(#ff6600, #ff9900); /* Standard syntax (must be last) */
+  /*background-color: #ff6600;*/
   height: 140px;
   color: white;
 }
@@ -50,15 +54,18 @@ body {
 }
 
 .hero-footer {
-	position:absolute;
-  bottom:0;
+	/*position:absolute;*/
+  /*bottom:-350px;*/
+  /*margin-top: 350px;*/
 	width: 100%;
 	font-family: "Dosis", Helvetica;
-	-webkit-clip-path: polygon(100% 0, 100% 0, 100% 100%, 75% 100%);
-	clip-path: polygon(100% 0, 100% 0, 100% 100%, 75% 100%);
-	
-  background-color: #0099ff;
-  height: 250px;
+	/*-webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 75% 100%);*/
+	/*clip-path: polygon(0 70%, 100% 0, 100% 100%, 0 100%);*/
+	background: linear-gradient(#ff9900, #ff6600); /* Standard syntax (must be last) */
+	-webkit-clip-path: polygon(0 30%, 100% 0, 100% 100%, 0 100%);
+	clip-path: polygon(0 30%, 100% 0, 100% 100%, 0 100%);
+  /*background-color: #ff6600;*/
+  height: 150px;
   color: white;
 }
 
@@ -82,12 +89,11 @@ body {
 	margin: 0;
 }
 
-.hero-content {
-	width: 960px;
+.hero-content-wrapper {
+	width: 100%;
+	/* min-height calculation: 350px for the footer height; 140px for the header height */
+	min-height: calc(100vh - 150px - 140px);
 	margin: 0 auto;
-	flex: 1 0 auto;
-	display: flex;
-	flex-wrap: wrap;
 }
 
 .item {
