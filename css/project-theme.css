@@ -144,16 +144,41 @@ a:hover {
 	
 }
 
-a {
+.intro-content a {
 	outline: 0;
+	color: #999;
+
+}
+
+.intro-content {
+	font-size: 20px;
+	font-weight: 100;
+	line-height: 30px;
 }
 
 a:hover, a:active, a:focus {
   /* styling for any way a link is about to be used */
 }
 
+.intro-content .notes {
+	color: #ff9900;
+	/*color: #48c448;*/
+}
 
+.intro-content h3 {
+	color: #999;
+	font-weight: 500;
+	margin-top: 60px;
+}
 
 a:active {
 	color: #999;
+}
+
+iframe {
+	width: 960px;
+	height: 340px;
+	overflow: hidden;
+	border: 1px solid #999;
+	/*margin-bottom: 100px;*/
 }

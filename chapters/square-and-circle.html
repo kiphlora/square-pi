@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Unit Square and Inscribed Circle</title>
+
+	<script src="../js/d3/d3.min.js"></script>
+	<script src="../js/util.js"></script>
+
+	<style>
+		.axis path {
+			fill: transparent;
+			stroke: #333;
+			opacity: 0.3;
+		}
+
+		.axis line {
+			fill: transparent;
+			stroke: transparent;
+		}
+
+		.axis text {
+			fill: #333;
+			opacity: 0.3;
+		}
+
+	</style>
+</head>
+<body>
+	<div id="container">
+	</div>
+	<script>
+		width = 940;
+		height = 320;
+		margin = 10;
+		var div = d3.select("#container");
+		var svg = div.append("svg")
+				.attr("width", width + 2 * margin)
+				.attr("height", height + 2 * margin)
+			.append("g")
+				.attr("transform", "translate(" + margin + "," + margin + ")")
+
+
+		var circle = { point: [0.5, 0.5], r: 0.5 };
+		var square = { width: 300, height: 300 };
+
+		var xscale = d3.scaleLinear()
+			.domain([0,1])
+			.range([0, square.width]);
+
+		var yscale = d3.scaleLinear()
+			.domain([0,1])
+			.range([0, square.height]);
+
+		var xoff = function(val) {
+			return val + (width - square.width) / 2;
+		}
+
+		svg.append("rect")
+				.attr("class", "unit-square")
+				.attr("x", xoff(xscale(0)))
+				.attr("width", xscale(1) - xscale(0))
+				.attr("y", yscale(0))
+				.attr("height", yscale(1) - yscale(0))
+				.attr("fill", "transparent")
+				.attr("stroke", "transparent")
+			.transition()
+				.delay(500)
+				.duration(1000)
+				.attr("stroke", "black")
+				.attr("fill", "black")
+				.attr("fill-opacity", 0.05)
+			.on("end", inscribeCircle);
+
+		function inscribeCircle(){
+			svg.append("circle")
+					.attr("class", "inscribed-circle")
+					.attr("cx", xoff(xscale(circle.point[0])))
+					.attr("cy", yscale(circle.point[1]))
+					.attr("r", xscale(circle.r))
+					.attr("fill", "transparent")
+					.attr("stroke", "transparent")
+					.attr("fill-opacity", 0)
+				.transition()
+					.duration(1500)
+					.attr("fill", "#0099ff")
+					.attr("fill-opacity", 0.1)
+					.attr("stroke", "#0099ff");
+		}
+
+	</script>
+</body>
+</html>

@@ -246,3 +246,28 @@ function randColor(a) {
 	if (a === undefined) return "rgb(" + c + ")";
 	else return "rgba(" + c + "," + a + ")";
 }
+
+
+// MathJax specific function for creating math dynamically using JS
+// function found here: https://stackoverflow.com/questions/22823702/how-to-add-a-mathjax-equation-into-the-html-page-using-a-javascript-button
+// but was heavily edited to be more general for my purposes
+function queueMathJax(newhtml, element) {
+	element.innerHTML = newhtml;
+  MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
+}
+
+// D3 specific function for waiting until all transitions have ended before running a callback
+// found here: https://stackoverflow.com/questions/10692100/invoke-a-callback-at-the-end-of-a-transition/20773846#20773846
+// .each vs .on fix found here: https://stackoverflow.com/questions/38607647/d3-transition-looping-throwing-uncaught-typeerror-t-call-is-not-a-function
+function endall(transition, callback) {
+  if (typeof callback !== "function") throw new Error("Wrong callback in endall");
+  if (transition.size() === 0) { callback(); }
+  var n = 0;
+  transition
+      .each(function() { ++n; })
+      // .each("end", function() { if (!--n) callback.apply(this, arguments); }); // use with D3 v3
+      .on("end", function() { if (!--n) callback.apply(this, arguments); });      // use with D3 v4
+}
+
+// example of use
+// d3.selectAll("g").transition().call(endall, function() { console.log("all done") });

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Unit Square and Inscribed Circle</title>
+
+	<script src="../js/d3/d3.min.js"></script>
+	<script src="../js/util.js"></script>
+	<script type="text/javascript" async
+  	src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+	</script>
+
+
+	<style>
+		.axis path {
+			fill: transparent;
+			stroke: #333;
+			opacity: 0.3;
+		}
+
+		.axis line {
+			fill: transparent;
+			stroke: transparent;
+		}
+
+		.axis text {
+			fill: #333;
+			opacity: 0.3;
+		}
+		
+		.math-text {
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+
+		.math-text p {
+			position: absolute;
+			transform: translate(-25%, -50%)
+		}
+
+
+	</style>
+</head>
+<body>
+	<div id="container">
+	</div>
+	<div id="unit-square-area" class="math-text"><p>\( A = 1 \)</p></div>
+	<div id="unit-square-side" class="math-text"><p>\( s = 1 \)</p></div>
+	<div id="inscribed-circle-area" class="math-text"><p>\( A = \frac{1}{4} \pi \)</p></div>
+	<div id="inscribed-circle-radius" class="math-text"><p>\( r = \frac{1}{2} \)</p></div>
+
+	<script>
+		width = 940;
+		height = 320;
+		margin = 10;
+		var div = d3.select("#container");
+		var svg = div.append("svg")
+				.attr("width", width + 2 * margin)
+				.attr("height", height + 2 * margin)
+			.append("g")
+				.attr("transform", "translate(" + margin + "," + margin + ")")
+
+
+		var circle = { point: [0.5, 0.5], r: 0.5 };
+		var square = { width: 300, height: 300 };
+
+		var xscale = d3.scaleLinear()
+			.domain([0,1])
+			.range([0, square.width]);
+
+		var yscale = d3.scaleLinear()
+			.domain([0,1])
+			.range([0, square.height]);
+
+		var xoff = function(val) {
+			return val + (width - square.width) / 2;
+		}
+
+		var unitArea = d3.select("#unit-square-area");
+		var unitSide = d3.select("#unit-square-side");
+
+		var circleArea = d3.select("#inscribed-circle-area");
+		var circleRadius = d3.select("#inscribed-circle-radius");
+
+		unitSide
+				.style("top", yscale(1) - 25 + "px")
+				.style("left", xscale(0.5) + "px");
+
+		unitArea
+				.style("top", xscale(0.5) - 25 + "px")
+				.style("left", yscale(0.5) + "px")
+				.style("font-size", "20px");
+				
+
+		svg.append("rect")
+				.attr("class", "unit-square")
+				.attr("x", xscale(0))
+				.attr("width", xscale(1) - xscale(0))
+				.attr("y", yscale(0))
+				.attr("height", yscale(1) - yscale(0))
+				.attr("fill", "transparent")
+				.attr("stroke", "transparent")
+			.transition()
+				.delay(500)
+				.duration(1000)
+				.attr("stroke", "black")
+				.attr("fill", "black")
+				.attr("fill-opacity", 0.05)
+			// .on("end", inscribeCircle);
+
+		inscribeCircle();
+
+
+
+		function inscribeCircle(){
+			circleRadius
+					.style("top", yscale(0.75) + "px")
+					.style("left", width - xscale(0.35) - 15 + "px")
+					.style("color", "#0099ff")
+
+			circleArea
+					.style("top", yscale(circle.point[1]) - 25 + "px")
+					.style("left", width - xscale(0.5) - 15 + "px")
+					.style("color", "#0099ff")
+					.style("font-size", "20px")
+
+			svg.append("line")
+					.attr("x1", width - xscale(0.5) - 15)
+					.attr("y1", yscale(circle.point[1]))
+					.attr("x2", width - xscale(0.5) - 15)
+					.attr("y2", yscale(1))
+					.attr("stroke", "transparent")
+				.transition()
+					.duration(1500)
+					.attr("stroke", "#0099ff");
+
+			// svg.append("text")
+			// 		.attr("x", width - xscale(0.25) - 15)
+			// 		.attr("y", yscale(circle.point[1]) - 15)
+			// 		.attr("fill", "transparent")
+			// 		.attr("text-anchor", "middle")
+			// 		.text("r = 0.5")
+			// 	.transition()
+			// 		.duration(1500)
+			// 		.attr("fill", "#0099ff")
+
+			svg.append("circle")
+					.attr("class", "inscribed-circle")
+					.attr("cx", width - xscale(0.5) - 15)
+					.attr("cy", yscale(circle.point[1]))
+					.attr("r", xscale(circle.r))
+					.attr("fill", "transparent")
+					.attr("stroke", "transparent")
+					.attr("fill-opacity", 0)
+				.transition()
+					.duration(1500)
+					.attr("fill", "#0099ff")
+					.attr("fill-opacity", 0.1)
+					.attr("stroke", "#0099ff");
+		}
+
+	</script>
+</body>
+</html>

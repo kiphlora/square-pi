@@ -7,9 +7,14 @@
 	<link href="https://fonts.googleapis.com/css?family=Dosis:200" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="css/project-theme.css">
 	<link rel="stylesheet" type="text/css" href="css/page-style.css">
+
+	<script type="text/javascript" async
+	  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+	</script>
+
 	<script src="js/d3/d3.min.js"></script>
 	<script src="js/util.js"></script>
-
+	
 </head>
 <body>
   <div class="container">
@@ -23,12 +28,67 @@
 
 		<div class="hero-content-wrapper">
 			<div class="intro-content">
-				<!-- <h3>What is Pi?</h3>
-				<p>Pi is a number that represents the ratio between the circumference of a circle and the circle's diameter. It's an important number because it appears in all kinds of natural phenomena, such as waves, cyclical patterns, and, circles.</p>
-				<p>Pi is a transcendental number. This means it cannot be represented as a fraction. It's fractional digits go on forever. But, there are ways to approximate pi. The method I will show you today does not work quickly enough for practical use, but is simple and interesting.</p> -->
-			</div>
-			<div class="chapter-content">
-				<div id="scroll-vis"></div>
+				<p>
+					There are many different ways to approximate \( \pi \) (pi). The one we'll look at today involves using a unit square and a circle inscribed in that unit square.
+					Here's what they look like:
+				</p>
+				<div id="unit-square-and-inscribed-circle">
+					<iframe src="chapters/square-and-circle.html" scrolling="no" frameborder="0"></iframe>
+				</div>
+				
+				<h3>
+				Two Areas
+				</h3>
+				<p>
+					The area of a square is: \(A = side^2\). For a unit square, \(side = 1\), so the area will be: \(A = side^2 = (1)^2 = 1\). This will be important later, when we use the Uniform distribution to generate values between 0 and 1.
+				</p>
+				<p>
+					The area of a circle is: \(A = \pi r^2\). Since the circle is inscribed in the unit square, it's radius is: \(r = \frac{1}{2} (side) = \frac{1}{2}(1) = \frac{1}{2}\). As such, the area of the inscribed circle is: \(A = \pi r^2 = \pi ( \frac{1}{2} )^2 = \frac{1}{4}\pi \).
+				</p>
+				<div id="areas">
+					<iframe src="chapters/areas.html" scrolling="no" frameborder="0"></iframe>
+				</div>
+				<p>
+					To get \( \pi \) out of these two areas, we can multiply the ratio between the area of the unit square and the area of the inscribed circle by 4: $$ 4 \left( \frac{\text{Area of circle}}{\text{Area of square}} \right) = 4 \left( \frac{ \frac{1}{4} \pi }{1} \right) = 4 \left( \frac{1}{4} \pi \right) = \pi $$
+				</p>
+				
+				<h3>
+					Monte Carlo and Probabilities
+				</h3>
+				<p>
+					To approximate \( \pi \), we can use a Monte Carlo simulation. This means that we can use randomness to help us obtain our estimate.
+				</p>
+				<p>
+					For this Monte Carlo simulation, we will generate \( n \) points that all lie somewhere within the unit square. We do this by selecting our points \( (x_{i}, y_{i}) \) from the Uniform distribution. Or, in math speak, $$ (x_{i}, y_{i}) \sim{} U(0,1) \times U(0,1), \text{ for } i = 1,...,n $$
+				</p>
+				<p>
+					Using our area ratio from earlier, we can construct a probability statement that will tell us how likely it is that our random points will land within the circle:
+					$$ \text{The probability that } (x_i, y_i) \text{ lands within the circle } = \frac{\text{# of points that land in the circle}}{\text{total # of points}} \approx \frac{\text{Area of the circle}}{\text{Area of square}} $$
+					
+					Since we know that
+					$$ 4 \left( \frac{\text{Area of circle}}{\text{Area of square}} \right) = \pi $$
+				
+					and that 
+					$$ 4 \left( \frac{\text{# of points that land in the circle}}{\text{total # of points}} \right) \approx 4 \left( \frac{\text{Area of circle}}{\text{Area of square}} \right) $$
+					
+					then we can conclude that
+					$$ 4 \left( \frac{\text{# of points that land in the circle}}{\text{total # of points}} \right) \approx \pi $$
+				</p>
+				<p>
+					Knowing this, let's take a look at the simulation in action. Press the run button to begin.
+				</p>
+				<div id="running-monte-carlo">
+					<iframe src="chapters/running-monte-carlo.html" scrolling="no" frameborder="0"></iframe>
+				</div>
+				<p>
+					If you press the run button multiple times, you'll see that the simulation starts over, generating new random points. This variation changes the approximation of \( \pi \).
+				</p>
+				<p>
+					I'm sure you also noticed that the approximation of \( \pi \) isn't really all that great. This is because the number of points needed in order to create accurate approximations is quite large. It should be noted that Monte Carlo methods are frequently used to approximate solutions to problems that are difficult or intractable (i.e. not able to be solved exactly). However, since this algorithm converges to \( \pi \) slowly, other methods are used to approximate it.
+				</p>
+
+
+
 			</div>
 		</div>
 		<footer class="hero-footer">
@@ -40,16 +100,8 @@
 		</footer>
   </div>
 
-  <script src="js/chapters/init-full-algorithm.js"></script>
 
   <script>
-
-  	window.onload = function() {
-			var chapters = d3.selectAll(".chapter");
-			
-  	}
-  	
-
 		
   </script>
 
