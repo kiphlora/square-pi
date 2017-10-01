@@ -64,6 +64,41 @@
 
 		.running {
 			display: none;
+		}	
+
+		.slider {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 200px;
+			height: 50px;
+			margin: 5px 5px;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.slider input {
+			width: 100%;
+			margin: 0;
+			padding: 0;
+			margin-top: 10px;
+		}
+		
+		.slider .tooltip {
+			border-radius: 5px;
+			height: 40%;
+			font-size: 16px;
+			margin: 0;
+			padding: 5px;
+			background-color: #333;
+			text-align: center;
+			color: white;
+			pointer-events: none;
+		}
+
+		.tooltip p {
+			margin: 0;
+			padding: 0;
 		}
 
 
@@ -72,12 +107,19 @@
 <body>
 	<div id="container">
 	</div>
-	<div id="pi-text" class="math-text"><p></p></div>
+	<div id="pi-text" class="math-text"></div>
+
+	<div class="slider">
+		<div class="tooltip"><p><span id="n-points"></span> points</p></div>
+		<input id="npoints-slider" type="range" min="0" max="20" value=""/>	
+	</div>
+	
 	<button class="run-sim">Run</button>
+	
 
 	<script>
-
-		var n, x, y, points, circle, inCircleCount, inCircleProp, piApprox = null;
+		var n = 10000;
+		var x, y, points, circle, inCircleCount, inCircleProp, piApprox = null;
 		function runMCSim(npoints) {
 			n = npoints;
 			x = buildCustomArray(n, function(){ return randReal(0,1); });
@@ -96,6 +138,45 @@
 			inCircleProp = inCircleCount / n;
 			piApprox = 4 * inCircleProp;
 		}
+
+		/*
+			LogSlider code borrowed from user sth's answer at: https://stackoverflow.com/questions/846221/logarithmic-slider
+		*/
+		function LogSlider(options) {
+		   options = options || {};
+		   this.minpos = options.minpos || 0;
+		   this.maxpos = options.maxpos || 100;
+		   this.minlval = Math.log(options.minval || 1);
+		   this.maxlval = Math.log(options.maxval || 100000);
+
+		   this.scale = (this.maxlval - this.minlval) / (this.maxpos - this.minpos);
+		}
+
+		LogSlider.prototype = {
+		   // Calculate value from a slider position
+		   value: function(position) {
+		      return Math.exp((position - this.minpos) * this.scale + this.minlval);
+		   },
+		   // Calculate slider position from a value
+		   position: function(value) {
+		      return this.minpos + (Math.log(value) - this.minlval) / this.scale;
+		   }
+		};
+		// end of LogSlider code
+
+
+		var logsl = new LogSlider({maxpos: 20, minval: 100, maxval: 100000});
+
+
+		var tooltip = d3.select("#n-points").text(n);
+
+		var slider = d3.select("#npoints-slider");
+		slider.node().value = logsl.position(n);
+		slider.on("input", function(){
+			var tooltip = d3.select(".slider").select(".tooltip");
+			n = parseInt(logsl.value(this.value).toFixed(0));
+			tooltip.select("#n-points").text(n);
+		})
 
 		var timesRun = 0;
 
@@ -155,8 +236,8 @@
 		function resetPoints() {
 			svg.selectAll(".points").remove();
 			piText.style("opacity", 0);
-			runMCSim(10000);
-			var pi_html = "<p>\\( \\definecolor{bluePi}{RGB}{0,153,255} \\pi \\approx 4 \\left( \\frac{\\color{bluePi}{" + inCircleCount + "}}{" + n + "} \\right) \\approx" + piApprox + "\\)</p>"
+			runMCSim(n);
+			var pi_html = "<p>\\( \\definecolor{bluePi}{RGB}{0,153,255} \\pi \\approx 4 \\left( \\frac{\\color{bluePi}{" + inCircleCount + "}}{" + n + "} \\right) \\approx" + piApprox.toFixed(5) + "\\)</p>"
 			queueMathJax(pi_html, piText.node());
 
 			setTimeout(buildPoints, 300);
@@ -166,8 +247,8 @@
 		function buildRect() {
 			svg.selectAll("*").remove();
 			piText.style("opacity", 0);
-			runMCSim(10000);
-			var pi_html = "<p>\\( \\definecolor{bluePi}{RGB}{0,153,255} \\pi \\approx 4 \\left( \\frac{\\color{bluePi}{" + inCircleCount + "}}{" + n + "} \\right) \\approx" + piApprox + "\\)</p>"
+			runMCSim(n);
+			var pi_html = "<p>\\( \\definecolor{bluePi}{RGB}{0,153,255} \\pi \\approx 4 \\left( \\frac{\\color{bluePi}{" + inCircleCount + "}}{" + n + "} \\right) \\approx" + piApprox.toFixed(5) + "\\)</p>"
 			queueMathJax(pi_html, piText.node());
 
 			svg.append("rect")
