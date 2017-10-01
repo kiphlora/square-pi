@@ -165,7 +165,7 @@
 		// end of LogSlider code
 
 
-		var logsl = new LogSlider({maxpos: 20, minval: 100, maxval: 100000});
+		var logsl = new LogSlider({maxpos: 20, minval: 100, maxval: 1000000});
 
 
 		var tooltip = d3.select("#n-points").text(n);
@@ -179,6 +179,8 @@
 		})
 
 		var timesRun = 0;
+
+		var totalDuration = 5000;
 
 		var simDone = false;
 
@@ -205,12 +207,16 @@
 		height = 320;
 		margin = 10;
 		var div = d3.select("#container");
-		var svg = div.append("svg")
+		var canvas = div.append("canvas")
 				.attr("width", width + 2 * margin)
-				.attr("height", height + 2 * margin)
-			.append("g")
-				.attr("transform", "translate(" + margin + "," + margin + ")")
+				.attr("height", height + 2 * margin);
 
+		var context = canvas.node().getContext("2d");
+		// var svg = div.append("svg")
+		// 		.attr("width", width + 2 * margin)
+		// 		.attr("height", height + 2 * margin)
+		// 	.append("g")
+		// 		.attr("transform", "translate(" + margin + "," + margin + ")")
 
 		var circle = { point: [0.5, 0.5], r: 0.5 };
 		var square = { width: 300, height: 300 };
@@ -223,81 +229,167 @@
 			.domain([0,1])
 			.range([0, square.height]);
 
+		var pointSizeScale = d3.scaleLog()
+			.domain([100, 1000000])
+			.range([1.5, 0.05]);
+
 		var xoff = function(val) {
 			return val + (width - square.width) / 2;
 		}
 
 		piText
-			.style("left", xscale(0.5) + "px")
+			.style("left", xscale(0.5) - 50 + "px")
 			.style("top", yscale(0.5) + "px")
 			.style("font-size", "20px")
 			.style("opacity", 0);
 
-		function resetPoints() {
-			svg.selectAll(".points").remove();
-			piText.style("opacity", 0);
-			runMCSim(n);
+		function clearPoints(ctx) {
+			clearCanvas(ctx);
+			drawRect(ctx);
+			drawCircle(ctx);
+		}
+
+		function clearCanvas(ctx) {
+			ctx.clearRect(0,0,width,height);
+		}
+
+		function drawCircle(ctx) {
+			ctx.fillStyle = "rgba(0,153,255,0.1)";
+			ctx.strokeStyle = "rgb(0,153,255)";
+
+			ctx.beginPath();
+			var x = xoff(xscale(circle.point[0])) + margin;
+			var y = yscale(circle.point[1]) + margin;
+			var r = xscale(circle.r);
+			ctx.arc(x,y,r,0,2*Math.PI);
+			ctx.stroke();
+			ctx.fill();
+		}
+
+		function drawRect(ctx) {
+			ctx.fillStyle = "rgba(0,0,0,0.05)";
+			ctx.strokeStyle = "rgb(0,0,0)";
+			
+			ctx.beginPath()
+			var x = xoff(xscale(0)) + margin;
+			var y = yscale(0) + margin;
+			var w = xscale(1) - xscale(0);
+			var h = yscale(1) - yscale(0);
+			ctx.rect(x, y, w, h);
+			ctx.stroke();
+			ctx.fill();
+		}
+
+		function drawPoint(p, ctx) {
+			if (p === undefined) return;
+			var point = p.point;
+			var inCircle = p.inCircle;
+			ctx.fillStyle = inCircle == 1 ? "rgb(0,153,255)" : "rgb(0,0,0)";
+
+			ctx.beginPath();
+			var x = xoff(xscale(point[0])) + margin;
+			var y = yscale(point[1]) + margin;
+			var r = pointSizeScale(n);
+			ctx.arc(x,y,r,0,2*Math.PI);
+			// ctx.stroke();
+			ctx.fill();
+		}
+
+		function updateMath() {
 			var pi_html = "<p>\\( \\definecolor{bluePi}{RGB}{0,153,255} \\pi \\approx 4 \\left( \\frac{\\color{bluePi}{" + inCircleCount + "}}{" + n + "} \\right) \\approx" + piApprox.toFixed(5) + "\\)</p>"
 			queueMathJax(pi_html, piText.node());
+		}
+
+		function resetPoints() {
+			// svg.selectAll(".points").remove();
+			clearPoints(context);
+			piText.style("opacity", 0);
+			runMCSim(n);
+			updateMath();
+			
 
 			setTimeout(buildPoints, 300);
 			// buildPoints();
 		}
 
 		function buildRect() {
-			svg.selectAll("*").remove();
+			// svg.selectAll("*").remove();
 			piText.style("opacity", 0);
 			runMCSim(n);
-			var pi_html = "<p>\\( \\definecolor{bluePi}{RGB}{0,153,255} \\pi \\approx 4 \\left( \\frac{\\color{bluePi}{" + inCircleCount + "}}{" + n + "} \\right) \\approx" + piApprox.toFixed(5) + "\\)</p>"
-			queueMathJax(pi_html, piText.node());
+			updateMath();
 
-			svg.append("rect")
-					.attr("class", "unit-square")
-					.attr("x", xoff(xscale(0)))
-					.attr("width", xscale(1) - xscale(0))
-					.attr("y", yscale(0))
-					.attr("height", yscale(1) - yscale(0))
-					.attr("fill", "transparent")
-					.attr("stroke", "transparent")
-				.transition()
-					.delay(500)
-					.duration(1000)
-					.attr("stroke", "black")
-					.attr("fill", "black")
-					.attr("fill-opacity", 0.05)
-				.on("end", inscribeCircle);
-			}
+			drawRect(context);
+
+			// svg.append("rect")
+			// 		.attr("class", "unit-square")
+			// 		.attr("x", xoff(xscale(0)))
+			// 		.attr("width", xscale(1) - xscale(0))
+			// 		.attr("y", yscale(0))
+			// 		.attr("height", yscale(1) - yscale(0))
+			// 		.attr("fill", "transparent")
+			// 		.attr("stroke", "transparent")
+			// 	.transition()
+			// 		.delay(500)
+			// 		.duration(1000)
+			// 		.attr("stroke", "black")
+			// 		.attr("fill", "black")
+			// 		.attr("fill-opacity", 0.05)
+			// 	.on("end", inscribeCircle);
+			setTimeout(inscribeCircle, 500);
+		}
 
 		function inscribeCircle(){
-			svg.append("circle")
-					.attr("class", "inscribed-circle")
-					.attr("cx", xoff(xscale(circle.point[0])))
-					.attr("cy", yscale(circle.point[1]))
-					.attr("r", xscale(circle.r))
-					.attr("fill", "transparent")
-					.attr("stroke", "transparent")
-					.attr("fill-opacity", 0)
-				.transition()
-					.duration(1500)
-					.attr("fill", "#0099ff")
-					.attr("fill-opacity", 0.1)
-					.attr("stroke", "#0099ff")
-				.on("end", buildPoints);
+			// svg.append("circle")
+			// 		.attr("class", "inscribed-circle")
+			// 		.attr("cx", xoff(xscale(circle.point[0])))
+			// 		.attr("cy", yscale(circle.point[1]))
+			// 		.attr("r", xscale(circle.r))
+			// 		.attr("fill", "transparent")
+			// 		.attr("stroke", "transparent")
+			// 		.attr("fill-opacity", 0)
+			// 	.transition()
+			// 		.duration(1500)
+			// 		.attr("fill", "#0099ff")
+			// 		.attr("fill-opacity", 0.1)
+			// 		.attr("stroke", "#0099ff")
+			// 	.on("end", buildPoints);
+			drawCircle(context);
+
+			setTimeout(buildPoints, 300);
 		}
 
 		function buildPoints() {
-			svg.selectAll(".points").data(points)
-				.enter().append("circle")
-					.attr("class", "points")
-					.attr("cx", function(d,i){ return xoff(xscale(d.point[0])); })
-					.attr("cy", function(d,i){ return xscale(d.point[1]); })
-					.attr("r", 1)
-					.attr("fill", "transparent")
-				.transition()
-					.delay(function(d,i){ return i * 4000 / points.length; })
-					.duration(200)
-					.attr("fill", function(d,i){ return d.inCircle == 1 ? "#0099ff" : "black"; })
-				.call(endall, resetSim)
+
+			var raf = requestAnimationFrame(displayPoints);
+			var pointCount = 0;
+			var pointsPerFrame = 60;
+			var numPointsToDrawPerFrame = Math.ceil( (points.length * pointsPerFrame) / totalDuration);
+			// console.log(numPointsToDrawPerFrame);
+			function displayPoints(t) {
+				if (pointCount < points.length-1) raf = requestAnimationFrame(displayPoints);
+				else {
+					cancelAnimationFrame(raf);
+					resetSim();
+				}
+
+				for (var i=0; i<numPointsToDrawPerFrame; i++) {
+					var p = points[pointCount];
+					pointCount += 1;
+					drawPoint(p, context);
+				}
+			}
+			// svg.selectAll(".points").data(points)
+			// 	.enter().append("circle")
+			// 		.attr("class", "points")
+			// 		.attr("cx", function(d,i){ return xoff(xscale(d.point[0])); })
+			// 		.attr("cy", function(d,i){ return xscale(d.point[1]); })
+			// 		.attr("r", 1)
+			// 		.attr("fill", "transparent")
+			// 	.transition()
+			// 		.delay(function(d,i){ return i * 4000 / points.length; })
+			// 		.duration(200)
+			// 		.attr("fill", function(d,i){ return d.inCircle == 1 ? "#0099ff" : "black"; })
+			// 	.call(endall, resetSim)
 					// .attr("fill", "black")
 				// .on("end", inscribeCircle);
 
